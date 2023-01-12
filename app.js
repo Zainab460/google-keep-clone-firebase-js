@@ -62,6 +62,16 @@ class App {
     this.$app.style.display = "none";
 
     this.ui.start("#firebaseui-auth-container", {
+      callbacks: {
+        signInSuccessWithAuthResult:(authResult, redirectUrl) => {
+          // User successfully signed in.
+          // Return type determines whether we continue the redirect automatically
+          // or whether we leave that to developer to handle.
+          this.$authUserText.innerHTML = user.displayName;
+          this.redirectToApp();
+          return true;
+        }
+      },
       signInOptions: [
         firebase.auth.EmailAuthProvider.PROVIDER_ID,
         firebase.auth.GoogleAuthProvider.PROVIDER_ID,
