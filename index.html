@@ -402,7 +402,25 @@
       };
       firebase.initializeApp(firebaseConfig);
       const auth = firebase.auth();
-      console.log(auth);
+      var db = firebase.firestore();
+
+   // Add a new document in collection "cities"
+db.collection("users").doc("actualsignedinuserid").set({
+    notes:[
+      {
+        id: "123asdasdasd",
+        title: "title",
+        text: "text"
+      }
+    ]
+})
+.then(() => {
+    console.log("Document successfully written!");
+})
+.catch((error) => {
+    console.error("Error writing document: ", error);
+});
+
     </script>
 
     <script
