@@ -405,20 +405,33 @@
       var db = firebase.firestore();
 
    // Add a new document in collection "cities"
-db.collection("users").doc("actualsignedinuserid").set({
-    notes:[
-      {
-        id: "123asdasdasd",
-        title: "title",
-        text: "text"
-      }
-    ]
-})
-.then(() => {
-    console.log("Document successfully written!");
-})
-.catch((error) => {
-    console.error("Error writing document: ", error);
+// db.collection("users").doc("actualsignedinuserid").set({
+//     notes:[
+//       {
+//         id: "123asdasdasd",
+//         title: "title",
+//         text: "text"
+//       }
+//     ]
+// })
+// .then(() => {
+//     console.log("Document successfully written!");
+// })
+// .catch((error) => {
+//     console.error("Error writing document: ", error);
+// });
+
+var docRef = db.collection("users").doc("actualsignedinuserid");
+
+docRef.get().then((doc) => {
+    if (doc.exists) {
+        console.log("Document data:", doc.data());
+    } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+    }
+}).catch((error) => {
+    console.log("Error getting document:", error);
 });
 
     </script>
