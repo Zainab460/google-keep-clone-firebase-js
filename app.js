@@ -10,10 +10,10 @@ class App {
   // FORM BINDING STARTS
   constructor() {
     this.notes = [];
-    console.log(this.notes)
+    console.log(this.notes);
     this.selectedNoteId = "";
     this.miniSidebar = true;
-    this.userId ="";
+    this.userId = "";
 
     this.$activeForm = document.querySelector(".active-form");
     this.$inactiveForm = document.querySelector(".inactive-form");
@@ -47,8 +47,8 @@ class App {
   handleAuth() {
     firebase.auth().onAuthStateChanged((user) => {
       if (user) {
-        console.log(user.uid)
-        this.userId = user.uid
+        console.log(user.uid);
+        this.userId = user.uid;
         this.$authUserText.innerHTML = user.displayName;
         this.redirectToApp();
       } else {
@@ -60,6 +60,7 @@ class App {
   redirectToApp() {
     this.$firebaseAuthContainer.style.display = "none";
     this.$app.style.display = "block";
+    this.fetchNotesFromDB();
   }
   redirectToAuth() {
     this.$firebaseAuthContainer.style.display = "block";
@@ -67,14 +68,13 @@ class App {
 
     this.ui.start("#firebaseui-auth-container", {
       callbacks: {
-        signInSuccessWithAuthResult:(authResult, redirectUrl) => {
+        signInSuccessWithAuthResult: (authResult, redirectUrl) => {
           // User successfully signed in.
           // Return type determines whether we continue the redirect automatically
           // or whether we leave that to developer to handle.
-          this.userId = authResult.user.uid
+          this.userId = authResult.user.uid;
           this.$authUserText.innerHTML = user.displayName;
           this.redirectToApp();
-          return true;
         }
       },
       signInOptions: [
@@ -190,7 +190,7 @@ class App {
   // ADD A NOTE STARTS
   addNote({ title, text }) {
     if (text != "") {
-      const newNote = {id:cuid(), title, text};
+      const newNote = { id: cuid(), title, text };
       this.notes = [...this.notes, newNote];
       this.render();
     }
@@ -239,10 +239,50 @@ class App {
       this.$sidebar.classList.remove("sidebar-hover");
     }
   }
-  saveNotes() {
-    // localStorage.setItem("notes", JSON.stringify(this.notes));
-    console.log(this.userId)
+
+  fetchNotesFromDB() {
+    var docRef = db.collection("users").doc(this.userId);
+
+docRef.get().then((doc) => {
+    if (doc.exists) {
+        console.log("Document data:", doc.data());
+        this.notes = doc.data().notes;
+        this.displayNotes();
+    } else {
+        // doc.data() will be undefined in this case
+        console.log("No such document!");
+
+        db.collection("users")
+      .doc()
+      .set({
+        notes: []
+      })
+      .then(() => {
+        console.log("Document successfully created!");
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
+      });
+    }
+}).catch((error) => {
+    console.log("Error getting document:", error);
+});
   }
+  saveNotes() {
+    // Add a new document in collection "cities"
+    db.collection("users")
+      .doc()
+      .set({
+        notes: this.notes
+      })
+      .then(() => {
+        console.log("Document successfully written!");
+      })
+      .catch((error) => {
+        console.error("Error writing document: ", error);
+      });
+  }
+
   render() {
     this.saveNotes();
     this.displayNotes();
@@ -250,9 +290,7 @@ class App {
   // onmouseover="app.handleMouseOverNote(this)" onmouseout="app.handleMouseOutNote(this)"
 
   displayNotes() {
-    this.$notes.innerHTML = this.notes
-      .map(
-        (note) =>
+    this.$notes.innerHTML = this.notes.map((note) =>
           `
         <div class="note" id=${note.id} onmouseover="app.handleMouseOverNote(this)" onmouseout="app.handleMouseOutNote(this)">
           <span>
