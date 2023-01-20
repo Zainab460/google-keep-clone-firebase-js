@@ -83,6 +83,7 @@ class App {
       ],
     });
   }
+  
   handleLogout() {
     firebase
       .auth()
